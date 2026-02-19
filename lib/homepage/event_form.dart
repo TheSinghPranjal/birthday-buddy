@@ -24,6 +24,10 @@ class _EventFormState extends ConsumerState<EventForm> {
   DateTime? _birthday;
   List<TimeOfDay> _reminderTimes = [];
   String? _profileImagePath;
+  String _repeatType = 'none';
+  int _customInterval = 1;
+  String _customUnit = 'minutes';
+  bool _repeatEnabled = true;
 
   @override
   void initState() {
@@ -33,6 +37,10 @@ class _EventFormState extends ConsumerState<EventForm> {
     _notesController = TextEditingController(text: widget.event?.notes ?? '');
     _birthday = widget.event?.birthday;
     _profileImagePath = widget.event?.profileImagePath;
+    _repeatType = widget.event?.repeatType ?? 'none';
+    _customInterval = widget.event?.customInterval ?? 1;
+    _customUnit = widget.event?.customUnit ?? 'minutes';
+    _repeatEnabled = widget.event?.repeatEnabled ?? true;
 
     // Convert DateTime reminders to TimeOfDay
     if (widget.event != null) {
@@ -149,6 +157,10 @@ class _EventFormState extends ConsumerState<EventForm> {
       notes: _notesController.text.trim().isEmpty
           ? null
           : _notesController.text.trim(),
+      repeatType: _repeatType,
+      customInterval: _repeatType == 'custom' ? _customInterval : null,
+      customUnit: _repeatType == 'custom' ? _customUnit : null,
+      repeatEnabled: _repeatEnabled,
     );
 
     Navigator.pop(context, {'event': event, 'index': widget.index});
@@ -363,6 +375,98 @@ class _EventFormState extends ConsumerState<EventForm> {
                 }),
               ),
             const SizedBox(height: 32),
+
+            // Repeat Options (dropdown)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Repeat',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _repeatType,
+                          items: const [
+                            DropdownMenuItem(value: 'none', child: Text('None')),
+                            DropdownMenuItem(value: 'minute', child: Text('Every minute')),
+                            DropdownMenuItem(value: 'hour', child: Text('Every hour')),
+                            DropdownMenuItem(value: 'day', child: Text('Every day')),
+                            DropdownMenuItem(value: 'yearly', child: Text('Yearly')),
+                            DropdownMenuItem(value: 'custom', child: Text('Custom')),
+                          ],
+                          onChanged: (v) => setState(() => _repeatType = v ?? 'none'),
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Repeat'),
+                          Switch(
+                            value: _repeatEnabled,
+                            onChanged: (v) => setState(() => _repeatEnabled = v),
+                            activeColor: Colors.purpleAccent,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (_repeatType == 'custom')
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: TextFormField(
+                              initialValue: _customInterval.toString(),
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Every',
+                                isDense: true,
+                              ),
+                              onChanged: (v) => setState(() => _customInterval = int.tryParse(v) ?? 1),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _customUnit,
+                              items: const [
+                                DropdownMenuItem(value: 'minutes', child: Text('Minutes')),
+                                DropdownMenuItem(value: 'hours', child: Text('Hours')),
+                                DropdownMenuItem(value: 'days', child: Text('Days')),
+                              ],
+                              onChanged: (v) => setState(() => _customUnit = v ?? 'minutes'),
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
 
             // Save Button
             Container(

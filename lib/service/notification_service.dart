@@ -102,23 +102,111 @@ class NotificationService {
         );
       }
 
-      // Generate unique notification ID
-      final notificationId = _generateNotificationId(eventIndex, i);
+      // Generate base notification ID
+      final baseId = _generateNotificationId(eventIndex, i);
 
-      await _scheduleNotification(
-        id: notificationId,
-        title: '🎉 ${event.name}\'s Birthday!',
-        body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
-        scheduledDate: scheduledDate,
-        payload: 'birthday_$eventIndex',
-        channelId: 'birthday_reminders',
-        channelName: 'Birthday Reminders',
-        channelDescription: 'Notifications for upcoming birthdays',
-      );
+      // If repeat disabled or set to 'none' -> schedule single occurrence
+      if (!event.repeatEnabled || event.repeatType == 'none') {
+        await _scheduleNotification(
+          id: baseId,
+          title: '🎉 ${event.name}\'s Birthday!',
+          body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
+          scheduledDate: scheduledDate,
+          payload: 'birthday_$eventIndex',
+          channelId: 'birthday_reminders',
+          channelName: 'Birthday Reminders',
+          channelDescription: 'Notifications for upcoming birthdays',
+        );
+        debugPrint('Scheduled one-off reminder for ${event.name} at $scheduledDate (ID: $baseId)');
+        continue;
+      }
 
-      debugPrint(
-        'Scheduled reminder for ${event.name} at $scheduledDate (ID: $notificationId)',
-      );
+      // Handle repeating types
+      if (event.repeatType == 'yearly') {
+        await _scheduleNotification(
+          id: baseId,
+          title: '🎉 ${event.name}\'s Birthday!',
+          body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
+          scheduledDate: scheduledDate,
+          payload: 'birthday_$eventIndex',
+          channelId: 'birthday_reminders',
+          channelName: 'Birthday Reminders',
+          channelDescription: 'Notifications for upcoming birthdays',
+          matchDateTimeComponents: DateTimeComponents.dateAndTime,
+        );
+        debugPrint('Scheduled yearly reminder for ${event.name} at $scheduledDate (ID: $baseId)');
+        continue;
+      }
+
+      if (event.repeatType == 'day') {
+        await _scheduleNotification(
+          id: baseId,
+          title: '🎉 ${event.name}\'s Birthday!',
+          body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
+          scheduledDate: scheduledDate,
+          payload: 'birthday_$eventIndex',
+          channelId: 'birthday_reminders',
+          channelName: 'Birthday Reminders',
+          channelDescription: 'Notifications for upcoming birthdays',
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+        debugPrint('Scheduled daily reminder for ${event.name} at $scheduledDate (ID: $baseId)');
+        continue;
+      }
+
+      // For minute/hour/custom repeats we will schedule multiple future occurrences
+      Duration interval;
+      int occurrences;
+      if (event.repeatType == 'minute') {
+        interval = const Duration(minutes: 1);
+        occurrences = 60; // schedule next 60 minutes
+      } else if (event.repeatType == 'hour') {
+        interval = const Duration(hours: 1);
+        occurrences = 48; // next 48 hours
+      } else if (event.repeatType == 'custom') {
+        final unit = event.customUnit ?? 'minutes';
+        final value = event.customInterval ?? 1;
+        if (unit == 'minutes') {
+          interval = Duration(minutes: value);
+          occurrences = 60; // schedule next 60 occurrences
+        } else if (unit == 'hours') {
+          interval = Duration(hours: value);
+          occurrences = 48;
+        } else {
+          interval = Duration(days: value);
+          occurrences = 365;
+        }
+      } else {
+        // fallback to single
+        await _scheduleNotification(
+          id: baseId,
+          title: '🎉 ${event.name}\'s Birthday!',
+          body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
+          scheduledDate: scheduledDate,
+          payload: 'birthday_$eventIndex',
+          channelId: 'birthday_reminders',
+          channelName: 'Birthday Reminders',
+          channelDescription: 'Notifications for upcoming birthdays',
+        );
+        continue;
+      }
+
+      // Schedule multiple occurrences using single-instance scheduled notifications
+      for (int j = 0; j < occurrences; j++) {
+        final scheduled = scheduledDate.add(interval * j);
+        final id = baseId + (j + 1) * 1000 + i * 100;
+        await _scheduleNotification(
+          id: id,
+          title: '🎉 ${event.name}\'s Birthday!',
+          body: 'Today is ${event.name}\'s birthday! Don\'t forget to wish them.',
+          scheduledDate: scheduled,
+          payload: 'birthday_${eventIndex}_$j',
+          channelId: 'birthday_reminders',
+          channelName: 'Birthday Reminders',
+          channelDescription: 'Notifications for upcoming birthdays',
+        );
+      }
+      debugPrint('Scheduled $occurrences repeating reminders for ${event.name} starting at $scheduledDate (base ID: $baseId)');
     }
   }
 
@@ -132,6 +220,7 @@ class NotificationService {
     required String channelId,
     required String channelName,
     required String channelDescription,
+    DateTimeComponents? matchDateTimeComponents,
   }) async {
     final androidDetails = AndroidNotificationDetails(
       channelId,
@@ -164,17 +253,25 @@ class NotificationService {
       tz.TZDateTime.from(scheduledDate, tz.local),
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time, // Repeat yearly
+      matchDateTimeComponents: matchDateTimeComponents,
       payload: payload,
     );
   }
 
   // Cancel all reminders for a specific event
   Future<void> cancelEventReminders(int eventIndex) async {
-    // Assume max 10 reminders per event
-    for (int i = 0; i < 10; i++) {
-      final notificationId = _generateNotificationId(eventIndex, i);
-      await _notifications.cancel(notificationId);
+    // Cancel a wide range of possible notification IDs for this event
+    // IDs are generated as: base = _generateNotificationId(eventIndex, reminderIndex)
+    // and for repeating we added offsets. We'll cancel a broad range to be safe.
+    for (int reminderIndex = 0; reminderIndex < 20; reminderIndex++) {
+      final base = _generateNotificationId(eventIndex, reminderIndex);
+      // cancel base ID
+      await _notifications.cancel(base);
+      // cancel a range of generated repeating IDs
+      for (int j = 0; j < 100; j++) {
+        final id = base + (j + 1) * 1000 + reminderIndex * 100;
+        await _notifications.cancel(id);
+      }
     }
     debugPrint('Cancelled all reminders for event index $eventIndex');
   }

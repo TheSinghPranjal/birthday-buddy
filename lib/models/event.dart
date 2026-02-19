@@ -25,6 +25,19 @@ class BirthdayEvent extends HiveObject {
   @HiveField(6)
   bool isActive;
 
+  // Repeat settings
+  @HiveField(7)
+  String repeatType; // 'none','minute','hour','day','yearly','custom'
+
+  @HiveField(8)
+  int? customInterval; // when repeatType == 'custom'
+
+  @HiveField(9)
+  String? customUnit; // 'minutes','hours','days'
+
+  @HiveField(10)
+  bool repeatEnabled;
+
   BirthdayEvent({
     required this.name,
     required this.birthday,
@@ -33,6 +46,10 @@ class BirthdayEvent extends HiveObject {
     this.contactNumber,
     this.notes,
     this.isActive = true,
+    this.repeatType = 'none',
+    this.customInterval,
+    this.customUnit,
+    this.repeatEnabled = true,
   });
 
   int daysUntilBirthday() {

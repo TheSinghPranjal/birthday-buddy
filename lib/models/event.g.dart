@@ -27,13 +27,17 @@ class BirthdayEventAdapter extends TypeAdapter<BirthdayEvent> {
       contactNumber: fields[4] as String?,
       notes: fields[5] as String?,
       isActive: fields[6] as bool? ?? true,
+      repeatType: fields[7] as String? ?? 'none',
+      customInterval: fields[8] as int?,
+      customUnit: fields[9] as String?,
+      repeatEnabled: fields[10] as bool? ?? true,
     );
   }
 
   @override
   void write(BinaryWriter writer, BirthdayEvent obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -47,7 +51,15 @@ class BirthdayEventAdapter extends TypeAdapter<BirthdayEvent> {
       ..writeByte(5)
       ..write(obj.notes)
       ..writeByte(6)
-      ..write(obj.isActive);
+      ..write(obj.isActive)
+      ..writeByte(7)
+      ..write(obj.repeatType)
+      ..writeByte(8)
+      ..write(obj.customInterval)
+      ..writeByte(9)
+      ..write(obj.customUnit)
+      ..writeByte(10)
+      ..write(obj.repeatEnabled);
   }
 
   @override
