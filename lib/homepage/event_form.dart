@@ -377,20 +377,30 @@ class _EventFormState extends ConsumerState<EventForm> {
             const SizedBox(height: 32),
 
             // Repeat Options (dropdown)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Column(
+           Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Repeat',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      const Text(
+                        'Repeat',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 12),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Switch(
+                            value: _repeatEnabled,
+                            onChanged: (v) => setState(() => _repeatEnabled = v),
+                            activeColor: Colors.purpleAccent,
+                          ),
+                        ],
+                      ),
+
+                    ],
                   ),
+
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -412,18 +422,7 @@ class _EventFormState extends ConsumerState<EventForm> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('Repeat'),
-                          Switch(
-                            value: _repeatEnabled,
-                            onChanged: (v) => setState(() => _repeatEnabled = v),
-                            activeColor: Colors.purpleAccent,
-                          ),
-                        ],
-                      ),
+
                     ],
                   ),
                   if (_repeatType == 'custom')
@@ -464,7 +463,7 @@ class _EventFormState extends ConsumerState<EventForm> {
                     ),
                 ],
               ),
-            ),
+
 
             const SizedBox(height: 24),
 
