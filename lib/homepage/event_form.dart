@@ -27,7 +27,7 @@ class _EventFormState extends ConsumerState<EventForm> {
   String _repeatType = 'none';
   int _customInterval = 1;
   String _customUnit = 'minutes';
-  bool _repeatEnabled = true;
+  bool _repeatEnabled = false;
 
   @override
   void initState() {
@@ -386,18 +386,12 @@ class _EventFormState extends ConsumerState<EventForm> {
                         'Repeat',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(width: 12),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Switch(
-                            value: _repeatEnabled,
-                            onChanged: (v) => setState(() => _repeatEnabled = v),
-                            activeColor: Colors.purpleAccent,
-                          ),
-                        ],
+                      const Spacer(),
+                      Switch(
+                        value: _repeatEnabled,
+                        onChanged: (v) => setState(() => _repeatEnabled = v),
+                        activeColor: Colors.purpleAccent,
                       ),
-
                     ],
                   ),
 
