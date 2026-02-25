@@ -399,20 +399,26 @@ class _EventFormState extends ConsumerState<EventForm> {
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _repeatType,
-                          items: const [
-                            DropdownMenuItem(value: 'none', child: Text('None')),
-                            DropdownMenuItem(value: 'minute', child: Text('Every minute')),
-                            DropdownMenuItem(value: 'hour', child: Text('Every hour')),
-                            DropdownMenuItem(value: 'day', child: Text('Every day')),
-                            DropdownMenuItem(value: 'yearly', child: Text('Yearly')),
-                            DropdownMenuItem(value: 'custom', child: Text('Custom')),
-                          ],
-                          onChanged: (v) => setState(() => _repeatType = v ?? 'none'),
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        child: AbsorbPointer(
+                          absorbing: !_repeatEnabled,
+                          child: Opacity(
+                            opacity: _repeatEnabled ? 1.0 : 0.6,
+                            child: DropdownButtonFormField<String>(
+                              value: _repeatType,
+                              items: const [
+                                DropdownMenuItem(value: 'none', child: Text('None')),
+                                DropdownMenuItem(value: 'minute', child: Text('Every minute')),
+                                DropdownMenuItem(value: 'hour', child: Text('Every hour')),
+                                DropdownMenuItem(value: 'day', child: Text('Every day')),
+                                DropdownMenuItem(value: 'yearly', child: Text('Yearly')),
+                                DropdownMenuItem(value: 'custom', child: Text('Custom')),
+                              ],
+                              onChanged: _repeatEnabled ? (v) => setState(() => _repeatType = v ?? 'none') : null,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
                           ),
                         ),
                       ),
