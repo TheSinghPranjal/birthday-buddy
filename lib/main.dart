@@ -11,19 +11,25 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
-  // DELETE OLD DATA - Run this once, then comment it out
-  try {
-    await Hive.deleteBoxFromDisk('events');
-    print('✅ Old Hive box deleted successfully');
-  } catch (e) {
-    print('ℹ️ No old box to delete or error: $e');
-  }
+  // NOTE: previously this deleted the 'events' box on every start.
+  // That was useful during development but will erase user data when the app launches.
+  // If you need to reset data during development, run Hive.deleteBoxFromDisk('events')
+  // once manually or uncomment the block below temporarily.
+  //
+  // try {
+  //   await Hive.deleteBoxFromDisk('events');
+  //   print('✅ Old Hive box deleted successfully');
+  // } catch (e) {
+  //   print('ℹ️ No old box to delete or error: $e');
+  // }
 
   // Register adapter
   Hive.registerAdapter(BirthdayEventAdapter());
 
   // Open box
   await Hive.openBox<BirthdayEvent>('events');
+  // Open weekly events box used by EventPage
+  await Hive.openBox('weekly_events');
 
   runApp(const ProviderScope(child: MyApp()));
 }
