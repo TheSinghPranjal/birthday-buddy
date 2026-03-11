@@ -60,6 +60,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   final List<Widget> _pages = [
     const HomePage(),
+    const HomePage(),
     const SettingsPage(),
   ];
 
@@ -77,6 +78,7 @@ class _MainNavigatorState extends State<MainNavigator> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.event_available_outlined), label: 'Event'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
