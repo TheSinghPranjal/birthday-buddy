@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_bday/homepage/birthday_form.dart';
 import 'package:flutter_bday/homepage/event_form.dart';
 import 'package:flutter_bday/models/event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,11 +7,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import '../../controllers/event_controller.dart';
 
-class CustomEventCard extends ConsumerWidget {
+class CustomBirthdayEventCard extends ConsumerWidget {
   final BirthdayEvent event;
   final int index;
 
-  const CustomEventCard({
+  const CustomBirthdayEventCard({
     super.key,
     required this.event,
     required this.index,

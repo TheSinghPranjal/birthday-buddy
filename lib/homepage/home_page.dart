@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bday/homepage/event_form.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/event_controller.dart';
 import '../widgets/custom_components/custom_event_card.dart';
-import 'event_form.dart';
+// import 'birthday_form.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -223,7 +224,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               itemCount: events.length,
               itemBuilder: (context, index) {
                 final event = events[index];
-                return CustomEventCard(
+                return CustomBirthdayEventCard(
                   event: event,
                   index: index,
                 );
@@ -233,6 +234,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'home_page_fab',
         onPressed: _addEvent,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(

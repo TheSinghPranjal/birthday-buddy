@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "163385549524",
+    "project_id": "flutter-bday-buddy",
+    "storage_bucket": "flutter-bday-buddy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163385549524:android:8d4b59d41bfae8bf0fd141",
+        "android_client_info": {
+          "package_name": "com.example.flutter_bday"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARHeSHNniplqknwEK6Li_gWGHeLDWWSmc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
